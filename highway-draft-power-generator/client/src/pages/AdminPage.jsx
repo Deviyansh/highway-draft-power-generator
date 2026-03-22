@@ -59,7 +59,7 @@ function TabBtn({ active, onClick, icon, label }) {
 }
 
 export default function AdminPage({ onLogout }) {
-  const { tokens } = useTheme();
+  const { tokens, mode } = useTheme();
   const { status, chartData, rawRecords, lastPacket, stats, pause, resume, refresh } = useDataStream();
   const [tab, setTab] = useState("chart");
   const [chartType, setChartType] = useState("spline");
@@ -103,7 +103,25 @@ export default function AdminPage({ onLogout }) {
   const s = (style) => style; // passthrough for readability
 
   return (
-    <div style={{ minHeight: "100vh", background: tokens.bg, transition: "background 0.35s" }}>
+    <div style={{
+        minHeight: "100vh",
+        background: tokens.bg,
+        transition: "background 0.35s",
+        position: "relative",
+        isolation: "isolate",
+        }}>
+            <div style={{
+                position: "fixed",
+                inset: 0,
+                zIndex: -1,
+                backgroundImage: "url('/bg-hero.png')",
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+                backgroundRepeat: "no-repeat",
+                opacity: mode === "light" ? 0.5 : 0.5,
+                transition: "opacity 0.5s ease",
+                pointerEvents: "none",
+                }} />
       <Topbar rightSlot={
         <button
           onClick={onLogout}

@@ -5,7 +5,7 @@ import { useTheme } from "../context/ThemeContext.jsx";
 import api from "../services/api.js";
 
 export default function UserPage({ onBack }) {
-  const { tokens } = useTheme();
+  const { tokens, mode } = useTheme();
   const [form, setForm] = useState({ fullName: "", contact: "", message: "" });
   const [status, setStatus] = useState("idle");
 
@@ -24,7 +24,25 @@ export default function UserPage({ onBack }) {
   };
 
   return (
-    <div style={{ minHeight: "100vh", background: tokens.bg, transition: "background 0.35s" }}>
+    <div style={{
+        minHeight: "100vh",
+        background: tokens.bg,
+        transition: "background 0.35s",
+        position: "relative",
+        isolation: "isolate",
+        }}>
+            <div style={{
+                position: "fixed",
+                inset: 0,
+                zIndex: -1,
+                backgroundImage: "url('/bg-hero.png')",
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+                backgroundRepeat: "no-repeat",
+                opacity: mode === "light" ? 0.5 : 0.5,
+                transition: "opacity 0.5s ease",
+                pointerEvents: "none",
+                }} />
       <Topbar />
       <div style={{ maxWidth: 600, margin: "0 auto", padding: "32px 20px" }}>
         <button
@@ -45,7 +63,8 @@ export default function UserPage({ onBack }) {
             About The Project
           </h2>
           <p style={{ color: tokens.textFaint, fontSize: 14, lineHeight: 1.75, marginBottom: 28, transition: "color 0.35s" }}>
-            This system captures energy generation data in real-time and displays it via dynamic spline and line charts.
+            This system captures energy generation data in real-time and displays it.
+
           </p>
 
           <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 20 }}>
@@ -78,11 +97,11 @@ export default function UserPage({ onBack }) {
 
           <div style={{ marginBottom: 20 }}>
             <label style={{ color: tokens.textMuted, fontSize: 13, display: "block", marginBottom: 6, fontWeight: 500 }}>
-              Feedback / Issues
+              Feedback / Issues / Hardware Faults
             </label>
             <textarea
               className="input-field" rows={5} value={form.message}
-              onChange={set("message")} placeholder="Describe your feedback or issue..."
+              onChange={set("message")} placeholder="Describe your feedback or issue or any hardware faults found..."
               style={{ resize: "vertical" }}
             />
           </div>

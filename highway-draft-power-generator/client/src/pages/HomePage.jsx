@@ -5,7 +5,7 @@ import { useTheme } from "../context/ThemeContext.jsx";
 import api from "../services/api.js";
 
 export default function HomePage({ onAdminLogin, onEnterUser }) {
-  const { tokens } = useTheme();
+  const { tokens, mode } = useTheme();
   const [username, setUsername] = useState("admin");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -25,117 +25,208 @@ export default function HomePage({ onAdminLogin, onEnterUser }) {
     }
   };
 
+  const isLight = mode === "light";
+
   return (
-    <div style={{ minHeight: "100vh", background: tokens.bg, transition: "background 0.35s" }}>
+    <div style={{ minHeight: "100vh", background: tokens.bg, display: "flex", flexDirection: "column", transition: "background 0.35s" }}>
       <Topbar />
 
-      <div style={{ textAlign: "center", padding: "64px 24px 48px" }}>
-        <div style={{ display: "flex", justifyContent: "center", marginBottom: 16 }}>
-          <div style={{
-            width: 60, height: 60, borderRadius: 16,
-            background: tokens.accentBg,
-            border: `1px solid ${tokens.accentBorder}`,
-            display: "flex", alignItems: "center", justifyContent: "center",
-            transition: "all 0.35s",
-          }}>
-            <Activity size={28} color={tokens.accent} />
-          </div>
-        </div>
-        <h1 style={{
-          fontSize: "clamp(26px,5vw,46px)",
-          fontWeight: 800,
-          color: tokens.accent,
-          letterSpacing: -1,
-          lineHeight: 1.15,
-          marginBottom: 14,
-          transition: "color 0.35s",
-        }}>
-          Highway Draft Power Generator
-        </h1>
-        <p style={{ color: tokens.textFaint, fontSize: 15, maxWidth: 520, margin: "0 auto", transition: "color 0.35s" }}>
-          Real-time data visualization and monitoring system.
-        </p>
-      </div>
+      {/* ── Two-column hero ───────────────────────────────────────── */}
+      <div style={{ display: "flex", flex: 1, minHeight: "calc(100vh - 53px)" }}>
 
-      <div style={{
-        display: "flex", gap: 24, maxWidth: 760, margin: "0 auto",
-        padding: "0 24px 80px", flexWrap: "wrap", justifyContent: "center",
-      }}>
-        {/* Admin Card */}
-        <div className="glass-card" style={{ flex: "1 1 320px", padding: 28 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 20 }}>
+        {/* ── LEFT PANEL ─────────────────────────────────────────── */}
+        <div
+          style={{
+            width: "clamp(340px, 45%, 520px)",
+            flexShrink: 0,
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+            padding: "48px 40px 48px 48px",
+            gap: 0,
+            background: isLight
+              ? "rgba(248,250,252,0.97)"
+              : "rgba(6,11,22,0.98)",
+            borderRight: `1px solid ${tokens.border}`,
+            zIndex: 1,
+          }}
+        >
+          {/* Brand mark */}
+          <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 28 }}>
             <div style={{
-              width: 34, height: 34, borderRadius: 9,
+              width: 40, height: 40, borderRadius: 11,
               background: tokens.accentBg,
               border: `1px solid ${tokens.accentBorder}`,
               display: "flex", alignItems: "center", justifyContent: "center",
             }}>
-              <Lock size={16} color={tokens.accent} />
+              <Activity size={20} color={tokens.accent} />
             </div>
-            <h2 style={{ color: tokens.text, fontWeight: 700, fontSize: 17, transition: "color 0.35s" }}>
-              Admin Access
-            </h2>
+            <div>
+              <p style={{ color: tokens.accent, fontWeight: 800, fontSize: 14, letterSpacing: -0.2 }}>
+                HDPG
+              </p>
+              <p style={{ color: tokens.textGhost, fontSize: 11 }}>Monitoring System</p>
+            </div>
           </div>
 
-          <div style={{ marginBottom: 14 }}>
-            <label style={{ color: tokens.textMuted, fontSize: 13, display: "block", marginBottom: 6, fontWeight: 500 }}>
-              Username
-            </label>
-            <input
-              className="input-field"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              placeholder="admin"
-            />
+          <h1 style={{
+            fontSize: "clamp(20px, 2.4vw, 28px)",
+            fontWeight: 800,
+            color: tokens.text,
+            letterSpacing: -0.7,
+            lineHeight: 1.2,
+            marginBottom: 8,
+            transition: "color 0.35s",
+          }}>
+            Highway Draft<br />Power Generator
+          </h1>
+          <p style={{
+            color: tokens.textFaint,
+            fontSize: 13,
+            lineHeight: 1.65,
+            marginBottom: 36,
+            maxWidth: 320,
+            transition: "color 0.35s",
+          }}>
+            Real-time energy visualization &amp; monitoring.
+          </p>
+
+          {/* ── Admin Card ─────────────────────────────────────────── */}
+          <div
+            className="glass-card"
+            style={{ padding: "24px 24px 22px", marginBottom: 16 }}
+          >
+            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 18 }}>
+              <div style={{
+                width: 32, height: 32, borderRadius: 8,
+                background: tokens.accentBg,
+                border: `1px solid ${tokens.accentBorder}`,
+                display: "flex", alignItems: "center", justifyContent: "center",
+              }}>
+                <Lock size={15} color={tokens.accent} />
+              </div>
+              <h2 style={{ color: tokens.text, fontWeight: 700, fontSize: 15, transition: "color 0.35s" }}>
+                Admin Access
+              </h2>
+            </div>
+
+            <div style={{ marginBottom: 12 }}>
+              <label style={{ color: tokens.textMuted, fontSize: 12, display: "block", marginBottom: 5, fontWeight: 500 }}>
+                Username
+              </label>
+              <input
+                className="input-field"
+                style={{ fontSize: 13, padding: "9px 13px" }}
+                value={username}
+                onChange={e => setUsername(e.target.value)}
+                placeholder="admin"
+              />
+            </div>
+
+            <div style={{ marginBottom: 16 }}>
+              <label style={{ color: tokens.textMuted, fontSize: 12, display: "block", marginBottom: 5, fontWeight: 500 }}>
+                Password
+              </label>
+              <input
+                className="input-field"
+                style={{ fontSize: 13, padding: "9px 13px" }}
+                type="password"
+                value={password}
+                onChange={e => setPassword(e.target.value)}
+                placeholder="••••"
+                onKeyDown={e => e.key === "Enter" && handleLogin()}
+              />
+            </div>
+
+            {error && (
+              <p style={{ color: tokens.danger, fontSize: 12, marginBottom: 12, fontWeight: 500 }}>
+                {error}
+              </p>
+            )}
+
+            <button className="btn-primary" onClick={handleLogin} disabled={loading}
+              style={{ fontSize: 13, padding: "10px 16px" }}>
+              {loading ? "Logging in..." : "Login to Dashboard"}
+            </button>
           </div>
 
-          <div style={{ marginBottom: 18 }}>
-            <label style={{ color: tokens.textMuted, fontSize: 13, display: "block", marginBottom: 6, fontWeight: 500 }}>
-              Password
-            </label>
-            <input
-              className="input-field"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••"
-              onKeyDown={(e) => e.key === "Enter" && handleLogin()}
-            />
-          </div>
+          {/* ── User Card ──────────────────────────────────────────── */}
+          <div className="glass-card" style={{ padding: "20px 24px" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
+              <div style={{
+                width: 32, height: 32, borderRadius: 8,
+                background: tokens.successBg,
+                border: `1px solid ${tokens.successBorder}`,
+                display: "flex", alignItems: "center", justifyContent: "center",
+              }}>
+                <User size={15} color={tokens.success} />
+              </div>
+              <h2 style={{ color: tokens.text, fontWeight: 700, fontSize: 15, transition: "color 0.35s" }}>
+                User Access
+              </h2>
+            </div>
 
-          {error && (
-            <p style={{ color: tokens.danger, fontSize: 13, marginBottom: 12, fontWeight: 500 }}>
-              {error}
+            <p style={{ color: tokens.textFaint, fontSize: 12, lineHeight: 1.6, marginBottom: 14, transition: "color 0.35s" }}>
+              Provide feedback to the development team. No authentication required.
             </p>
-          )}
-          <button className="btn-primary" onClick={handleLogin} disabled={loading}>
-            {loading ? "Logging in..." : "Login to Dashboard"}
-          </button>
+
+            <button className="btn-green" onClick={onEnterUser}
+              style={{ fontSize: 13, padding: "9px 16px" }}>
+              <span style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 7 }}>
+                Enter as User <ChevronRight size={15} />
+              </span>
+            </button>
+          </div>
         </div>
 
-        {/* User Card */}
-        <div className="glass-card" style={{ flex: "1 1 280px", padding: 28 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16 }}>
-            <div style={{
-              width: 34, height: 34, borderRadius: 9,
-              background: tokens.successBg,
-              border: `1px solid ${tokens.successBorder}`,
-              display: "flex", alignItems: "center", justifyContent: "center",
-            }}>
-              <User size={16} color={tokens.success} />
-            </div>
-            <h2 style={{ color: tokens.text, fontWeight: 700, fontSize: 17, transition: "color 0.35s" }}>
-              User Access
-            </h2>
+        {/* ── RIGHT PANEL — Hero image ────────────────────────────── */}
+        <div style={{ flex: 1, position: "relative", overflow: "hidden", minHeight: 400 }}>
+          <img
+            src="/bg-hero.png"
+            alt="Highway Draft Power Generator — wind turbines and solar panels"
+            style={{
+              width: "100%",
+              height: "100%",
+              objectFit: "cover",
+              objectPosition: "center center",
+              display: "block",
+              filter: isLight ? "none" : "brightness(0.45) saturate(0.7)",
+              transition: "filter 0.5s ease",
+            }}
+          />
+
+          {/* Overlay gradient — blends image into left panel */}
+          <div style={{
+            position: "absolute",
+            inset: 0,
+            background: isLight
+              ? "linear-gradient(to right, rgba(248,250,252,0.18) 0%, transparent 30%)"
+              : "linear-gradient(to right, rgba(6,11,22,0.55) 0%, transparent 35%)",
+            transition: "background 0.5s ease",
+            pointerEvents: "none",
+          }} />
+
+          {/* Caption badge */}
+          <div style={{
+            position: "absolute",
+            bottom: 24,
+            right: 28,
+            background: isLight
+              ? "rgba(255,255,255,0.82)"
+              : "rgba(6,11,22,0.75)",
+            backdropFilter: "blur(12px)",
+            border: `1px solid ${tokens.border}`,
+            borderRadius: 10,
+            padding: "10px 16px",
+            transition: "all 0.35s",
+          }}>
+            <p style={{ color: tokens.text, fontSize: 12, fontWeight: 700, letterSpacing: -0.2 }}>
+              Wind &amp; Solar Integration
+            </p>
+            <p style={{ color: tokens.textFaint, fontSize: 11, marginTop: 2 }}>
+              Real-time Monitoring
+            </p>
           </div>
-          <p style={{ color: tokens.textFaint, fontSize: 13, lineHeight: 1.7, marginBottom: 28, transition: "color 0.35s" }}>
-            Users can provide feedback to the development team. No authentication required.
-          </p>
-          <button className="btn-green" onClick={onEnterUser}>
-            <span style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
-              Enter as User <ChevronRight size={16} />
-            </span>
-          </button>
         </div>
       </div>
     </div>
