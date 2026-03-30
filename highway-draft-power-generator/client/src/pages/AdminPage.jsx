@@ -13,6 +13,7 @@ import useDataStream from "../hooks/useDataStream.js";
 import { useTheme } from "../context/ThemeContext.jsx";
 import api from "../services/api.js";
 import { parseCSV, toCSVString, toReportString, downloadFile } from "../services/csvUtils.js";
+import { generateFallbackSummary } from "../services/fallbackSummary.js";
 
 function fmtTime(d) {
   return new Date(d).toLocaleTimeString("en-US", {
@@ -24,7 +25,7 @@ function StatusPill({ status }) {
   const { tokens } = useTheme();
   const map = {
     connected:  { color: tokens.success,  glow: tokens.statusGreenGlow, label: "CONNECTED"  },
-    offline:    { color: tokens.danger,   glow: "none",                  label: "OFFLINE"    },
+    offline:    { color: tokens.danger,   glow: "none",                  label: "DISCONNECTED"    },
     connecting: { color: tokens.warning,  glow: `0 0 8px ${tokens.warning}60`, label: "CONNECTING" },
     paused:     { color: "#f97316",       glow: "none",                  label: "PAUSED"     },
   };
@@ -69,20 +70,37 @@ export default function AdminPage({ onLogout }) {
   const fileRef = useRef();
 
   const handleAI = async () => {
-    setLoadingAI(true); setAiSummary("");
+    setLoadingAI(true);
+    setAiSummary("");
     try {
-      const snapshot = rawRecords.slice(-20)
-        .map(r => `${new Date(r.timestamp).toISOString()}: ${r.voltage_watt}W`).join("\n");
-      const res = await fetch("https://api.anthropic.com/v1/messages", {
-        method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          model: "claude-sonnet-4-20250514", max_tokens: 1000,
-          messages: [{ role: "user", content: `Analyze Highway Draft Power Generator sensor data:\n\n${snapshot}\n\nProvide a concise 3-4 sentence technical summary: avg energy output, trends, anomalies, and one actionable insight.` }],
-        }),
-      });
-      const json = await res.json();
-      setAiSummary(json.content?.map(c => c.text || "").join("") || "No summary available.");
-    } catch { setAiSummary("AI summarization failed. Please try again."); }
+        const snapshot = rawRecords
+        .slice(-20)
+        .map(r => `${new Date(r.timestamp).toISOString()}: ${r.voltage_watt}W`)
+        .join("\n");
+
+        const prompt = `Analyze this Highway Draft Power Generator sensor data (voltage in Watts):\n\n${snapshot}\n\nProvide a concise 3-4 sentence technical summary: average energy output, trends (peak/dip times), anomalies, and one actionable insight. Be direct and professional.`;
+
+        const res = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${import.meta.env.VITE_GEMINI_API_KEY}`,
+        {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+            contents: [{ parts: [{ text: prompt }] }],
+            }),
+        }
+        );
+
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+        const json = await res.json();
+        const text = json.candidates?.[0]?.content?.parts?.[0]?.text;
+        if (!text) throw new Error("Empty response");
+
+        setAiSummary(text);
+    } catch {
+        setAiSummary(generateFallbackSummary(rawRecords.slice(-10)));
+    }
     setLoadingAI(false);
   };
 
@@ -189,7 +207,7 @@ export default function AdminPage({ onLogout }) {
               Hardware Status
             </p>
             <StatusPill status={status} />
-            <p style={{ color: tokens.textGhost, fontSize: 11, marginTop: 5 }}>Target: RP2040 / ESP8266</p>
+            <p style={{ color: tokens.textGhost, fontSize: 11, marginTop: 5 }}>Target: Arduino / ES32-S3</p>
           </div>
 
           {/* Last Packet */}
